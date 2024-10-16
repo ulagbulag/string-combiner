@@ -1,0 +1,26 @@
+[package]
+name = "string-combiner"
+
+authors = ["Ho Kim <ho.kim@ulagbulag.io>"]
+description = "Robust merging algorithm for error-prone time-dependent string data"
+documentation = "https://docs.rs/string-combiner"
+edition = "2021"
+include = ["src/**/*.rs", "Cargo.toml"]
+keywords = ["assistant", "kubernetes", "string-combiner"]
+license = "MIT"
+readme = "./README.md"
+rust-version = "1.78"
+homepage = "https://github.com/ulagbulag/string-combiner"
+repository = "https://github.com/ulagbulag/string-combiner"
+version = "0.1.0"
+
+[features]
+default = ["rayon"]
+rayon = ["dep:rayon", "dep:rayon-cond"]
+
+[dependencies]
+bio = { git = "https://github.com/ulagbulag/rust-bio.git", branch = "feat/generic-alignment", default-features = false }
+rayon = { version = "1.10", optional = true }
+rayon-cond = { version = "0.3", optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
