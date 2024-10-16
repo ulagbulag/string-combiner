@@ -5,8 +5,6 @@ This repository provides out-of-the-box functionality for merging time-series st
 Our goal is for this to be used in string preprocessing and merging stages in real-time voice data processing pipelines, such as ASR (Automatic Speech Recognition).
 
 ```rust
-use std::time::Instant;
-
 use string_combiner::StringCombiner;
 
 fn main() {
@@ -20,14 +18,9 @@ fn main() {
     ];
 
     let combiner = StringCombiner::default();
-
-    let instant = Instant::now();
     let combined = combiner
         .concat_strings(inputs)
         .expect("Failed to concat texts");
-
-    println!("Output: {combined}");
-    println!("Elapsed: {:?}", instant.elapsed());
 
     let expected = "내 어린시절 우연히 들었던 믿지 못할 한 마디";
     assert_eq!(expected, combined);
