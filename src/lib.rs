@@ -33,10 +33,9 @@ impl Default for StringCombiner {
 impl StringCombiner {
     pub fn concat_segments<I, T, IT>(&self, inputs: I) -> Option<Segment<SegmentKey, Vec<T>>>
     where
-        AlignedSequence<T>: fmt::Display,
         I: IntoIterator<Item = Segment<SegmentKey, IT>>,
         IT: IntoIterator<Item = T>,
-        T: Send + Sync + Clone + fmt::Debug + Eq,
+        T: Send + Sync + Clone + Eq,
     {
         fn match_fn<T>(
             a: &Segment<SegmentKey, AlignedSequence<T>>,
@@ -74,7 +73,7 @@ impl StringCombiner {
         AlignedSequence<T>: fmt::Display,
         I: IntoIterator,
         <I as IntoIterator>::Item: IntoIterator<Item = T>,
-        T: Send + Sync + Clone + fmt::Debug + Eq,
+        T: Send + Sync + Clone + Eq,
     {
         fn match_fn<T>(
             _a: &AlignedSequence<T>,
@@ -99,7 +98,7 @@ impl StringCombiner {
             + AsRef<[AlignedToken<T>]>
             + AsRef<I::Item>
             + GreedyMultipleSequenceAlignerItem<T>,
-        T: Send + Sync + Clone + fmt::Debug + Eq,
+        T: Send + Sync + Clone + Eq,
     {
         let score = |a: &AlignedToken<_>, b: &AlignedToken<_>| if a == b { 2i32 } else { -3i32 };
         let scoring = Scoring::new(self.gap_open, self.gap_extend, score);

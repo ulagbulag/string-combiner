@@ -41,7 +41,6 @@ impl<T> Default for AlignmentTokenMergeVisitor<T> {
 impl<T> AlignmentVisitor<AlignedToken<T>> for AlignmentTokenMergeVisitor<AlignedToken<T>>
 where
     T: Clone,
-    T: std::fmt::Debug,
 {
     type Output = AlignedSequence<T>;
 
