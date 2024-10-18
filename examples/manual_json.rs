@@ -1,23 +1,30 @@
 use std::{fs::File, time::Instant};
 
+use serde::{Deserialize, Serialize};
 use string_combiner::{
     msa::{
         AlignedSequence, AlignedToken, GreedyMultipleSequenceAligner, MultipleSequenceAlignment,
         Scoring, SequenceMatch,
     },
-    segment::{Segment, SegmentKey},
+    segment::{Segment, SegmentKey, SegmentKind},
     token::AlignmentTokenMergeVisitor,
 };
 
+#[derive(Clone, Serialize, Deserialize)]
+struct SegmentValue {
+    kind: SegmentKind,
+    text: String,
+}
+
 fn main() {
-    let segments: Vec<Segment> = ::serde_json::from_reader(
+    let segments: Vec<Segment<_, SegmentValue>> = ::serde_json::from_reader(
         File::open("./examples/data/live-game-streaming.json").expect("Failed to get data file"),
     )
     .expect("Failed to parse data file");
 
-    let inputs = segments.iter().map(|Segment { key, value }| Segment {
-        key: key.clone(),
-        value: AlignedSequence::<u8>::from_iter(value.text.as_bytes().into_iter().copied()),
+    let inputs = segments.into_iter().map(|Segment { key, value }| Segment {
+        key,
+        value: AlignedSequence::<u8>::from_iter(value.text.into_bytes()),
     });
 
     let score = |a: &AlignedToken<_>, b: &AlignedToken<_>| if a == b { 2i32 } else { -3i32 };

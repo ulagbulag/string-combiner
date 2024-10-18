@@ -1,9 +1,19 @@
 use std::{fs::File, time::Instant};
 
-use string_combiner::{segment::Segment, StringCombiner};
+use serde::{Deserialize, Serialize};
+use string_combiner::{
+    segment::{Segment, SegmentKind},
+    StringCombiner,
+};
+
+#[derive(Clone, Serialize, Deserialize)]
+struct SegmentValue {
+    kind: SegmentKind,
+    text: String,
+}
 
 fn main() {
-    let segments: Vec<Segment> = ::serde_json::from_reader(
+    let segments: Vec<Segment<_, SegmentValue>> = ::serde_json::from_reader(
         File::open("./examples/data/live-game-streaming.json").expect("Failed to get data file"),
     )
     .expect("Failed to parse data file");
@@ -34,9 +44,9 @@ fn main() {
  지금은 그렇게 보이겠지만
  나비효과라는 말을 아십니까
  어 과거에 사소한 일이 미래에 거대한 영향을 끼친다는 거지
- 화재경보기를 울리는 건 미래에 확정된 멸망을 피할 수 있었던 신락같은 가능성
+ 화재경보기를 울리는 건 미래에 확정된 멸망을 피할 수 있었던 신락같은 가능성,
  그 기회를 놓쳤으니 지구의 멸망은 어떻게도 피할 수 없습니다
- 아이 그래 알았어 그래서 내가 어떻게 뭐 하면 되는데
+ 아이 그래 알았어 그래서 내가 어떻게 뭐하면 되는데
  냉장고 코드라도 뽑을까?
  은박지 넣어서 전자레인지 돌리면 돼
  이젠 다 소용없습니다

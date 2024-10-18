@@ -15,17 +15,21 @@ use crate::{
 
 #[derive(Clone, Debug)]
 pub struct StringCombiner {
+    pub allow_token_deletion: bool,
     pub gap_extend: i32,
     pub gap_open: i32,
-    pub threshold_deletion: usize,
+    pub threshold_deletion_x: usize,
+    pub threshold_deletion_y: usize,
 }
 
 impl Default for StringCombiner {
     fn default() -> Self {
         Self {
+            allow_token_deletion: true,
             gap_extend: -1,
             gap_open: -5,
-            threshold_deletion: 3,
+            threshold_deletion_x: usize::MAX,
+            threshold_deletion_y: 3,
         }
     }
 }
@@ -105,8 +109,8 @@ impl StringCombiner {
 
         let score_fn = |s: &I::Item| -> Option<usize> {
             let s: &AlignedSequence<T> = s.as_ref();
-            if s.num_deleted_x <= self.threshold_deletion
-                && s.num_deleted_y <= self.threshold_deletion
+            if s.num_deleted_x <= self.threshold_deletion_x
+                && s.num_deleted_y <= self.threshold_deletion_y
             {
                 Some(s.total_matched())
             } else {
@@ -115,7 +119,7 @@ impl StringCombiner {
         };
 
         let aligner = GreedyMultipleSequenceAligner::new(match_fn, score_fn);
-        let visitor = AlignmentTokenMergeVisitor::default();
+        let visitor = AlignmentTokenMergeVisitor::new(self.allow_token_deletion);
         aligner.reduce_all(scoring, visitor, inputs)
     }
 }
@@ -187,7 +191,7 @@ mod tests {
             "world! My name is Ho Kim.".chars(),
         ];
         let combiner = StringCombiner {
-            threshold_deletion: 0,
+            threshold_deletion_y: 0,
             ..Default::default()
         };
         let expected = Some("Hello world! My name is Ho Kim.");

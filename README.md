@@ -17,7 +17,10 @@ fn main() {
         "Hello bold".chars(),
     ];
 
-    let combiner = StringCombiner::default();
+    let combiner = StringCombiner {
+        threshold_deletion_x: 3,
+        ..Default::default()
+    };
     let combined = combiner
         .concat_strings(inputs)
         .expect("Failed to concat texts");

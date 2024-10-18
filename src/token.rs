@@ -22,6 +22,7 @@ impl Eq for TokenData {}
 
 #[derive(Clone, Debug)]
 pub struct AlignmentTokenMergeVisitor<T> {
+    allow_deletion: bool,
     buf: Vec<AlignmentToken<T>>,
     num_deleted_x: usize,
     num_deleted_y: usize,
@@ -30,7 +31,16 @@ pub struct AlignmentTokenMergeVisitor<T> {
 impl<T> Default for AlignmentTokenMergeVisitor<T> {
     #[inline]
     fn default() -> Self {
+        let allow_deletion = true;
+        Self::new(allow_deletion)
+    }
+}
+
+impl<T> AlignmentTokenMergeVisitor<T> {
+    #[inline]
+    pub fn new(allow_deletion: bool) -> Self {
         Self {
+            allow_deletion,
             buf: Default::default(),
             num_deleted_x: 0,
             num_deleted_y: 0,
@@ -123,20 +133,35 @@ where
     #[inline]
     fn finish(self) -> Self::Output {
         let Self {
+            allow_deletion,
             buf,
             num_deleted_x,
             num_deleted_y,
         } = self;
 
-        AlignedSequence {
-            value: buf
-                .into_iter()
-                // we don't want to have deleted data
-                .filter(|AlignmentToken { op, .. }| !matches!(op, AlignmentTokenOp::Del))
-                .map(|AlignmentToken { data, .. }| data)
-                .collect(),
-            num_deleted_x,
-            num_deleted_y,
+        if !allow_deletion
+            && buf
+                .iter()
+                .any(|AlignmentToken { op, .. }| !matches!(op, AlignmentTokenOp::Del))
+        {
+            AlignedSequence {
+                num_deleted_x: num_deleted_x + buf.len(),
+                num_deleted_y: num_deleted_x + buf.len(),
+                value: Default::default(),
+            }
+        } else {
+            AlignedSequence {
+                num_deleted_x,
+                num_deleted_y,
+                value: buf
+                    .into_iter()
+                    // we don't want to have deleted data
+                    .filter(|AlignmentToken { op, .. }| {
+                        allow_deletion && !matches!(op, AlignmentTokenOp::Del)
+                    })
+                    .map(|AlignmentToken { data, .. }| data)
+                    .collect(),
+            }
         }
     }
 }
