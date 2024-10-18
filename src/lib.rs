@@ -35,7 +35,24 @@ impl Default for StringCombiner {
 }
 
 impl StringCombiner {
+    #[inline]
     pub fn concat_segments<I, T, IT>(&self, inputs: I) -> Option<Segment<SegmentKey, Vec<T>>>
+    where
+        I: IntoIterator<Item = Segment<SegmentKey, IT>>,
+        IT: IntoIterator<Item = T>,
+        T: Send + Sync + Clone + Eq,
+    {
+        self.concat_segments_raw::<_, _, _>(inputs)
+            .map(|Segment { key, value }| Segment {
+                key,
+                value: value.value.into_iter().map(|token| token.data).collect(),
+            })
+    }
+
+    pub fn concat_segments_raw<I, T, IT>(
+        &self,
+        inputs: I,
+    ) -> Option<Segment<SegmentKey, AlignedSequence<T>>>
     where
         I: IntoIterator<Item = Segment<SegmentKey, IT>>,
         IT: IntoIterator<Item = T>,
@@ -65,11 +82,7 @@ impl StringCombiner {
             key,
             value: AlignedSequence::from_iter(value),
         });
-        self.concat_with::<_, _, _>(inputs, match_fn)
-            .map(|Segment { key, value }| Segment {
-                key,
-                value: value.value.into_iter().map(|token| token.data).collect(),
-            })
+        self.concat_with(inputs, match_fn)
     }
 
     pub fn concat_strings<I, T>(&self, inputs: I) -> Option<String>
