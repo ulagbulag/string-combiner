@@ -146,7 +146,7 @@ where
         {
             AlignedSequence {
                 num_deleted_x: num_deleted_x + buf.len(),
-                num_deleted_y: num_deleted_x + buf.len(),
+                num_deleted_y: num_deleted_y + buf.len(),
                 value: Default::default(),
             }
         } else {
